@@ -9,7 +9,7 @@ const {
   } = require("../controller/CommentController");
 
   // create new comment
-  CommentRouter.post("/comments/", createComment);
+  CommentRouter.post("/comments", createComment);
 
   // get all comments for a Post
   CommentRouter.get("/comments/:postId", getCommentsByPost);

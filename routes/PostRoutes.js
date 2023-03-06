@@ -11,10 +11,10 @@ const {
   } = require("../controller/PostController");
 
   // create new post
-  PostRouter.post("/posts/", createPost);
+  PostRouter.post("/posts", createPost);
 
   // get all posts
-  PostRouter.get("/posts/", getPosts);
+  PostRouter.get("/posts", getPosts);
 
   // make GET requests to /posts/search?text=keyword&category=categoryname
   PostRouter.get('/posts/search', getPostsByKeywordAndCategory);

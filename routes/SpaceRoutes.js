@@ -5,18 +5,22 @@ const {
     createSpace,
     getSpaces,
     getSpaceById,
+    getSpacePosts,
     updateSpace,
     deleteSpace 
   } = require("../controller/SpaceController");
 
   // create new space
-  SpaceRouter.post("/spaces/", createSpace);
+  SpaceRouter.post("/spaces", createSpace);
 
   // get all spaces
-  SpaceRouter.get("/spaces/", getSpaces);
+  SpaceRouter.get("/spaces", getSpaces);
 
   // get space with a spaceId
   SpaceRouter.get("/spaces/:spaceId", getSpaceById);
+
+  // get all Posts of a particular space
+  SpaceRouter.get("/spaces/:spaceId/posts", getSpacePosts);
 
   // update a space
   SpaceRouter.patch("/spaces/:spaceId", auth, updateSpace);

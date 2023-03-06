@@ -8,7 +8,7 @@ const createPost = async (req, res) => {
       content: req.body.content,
       category: req.body.category, 
       author: req.body.author,
-      spaceId: req.body.spaceId,
+      space: req.body.space,
       multimedia: req.body.multimedia,
     });
     const savedPost = await post.save();

@@ -43,6 +43,20 @@ const getSpaceById = async (req, res) => {
   }
 };
 
+// Function to get all posts of a single space/group by ID
+const getSpacePosts = async (req, res) => {
+  try {
+    const space = await Space.findById(req.params.spaceId).populate("posts");
+    if (!space) {
+      return res.status(404).json({ message: "Space not found" });
+    }
+    res.status(200).json(space.posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 // Function to update a space/group by ID
 const updateSpace = async (req, res) => {
   try {
@@ -85,6 +99,7 @@ module.exports = {
     createSpace,
     getSpaces,
     getSpaceById,
+    getSpacePosts,
     updateSpace,
     deleteSpace 
 };
