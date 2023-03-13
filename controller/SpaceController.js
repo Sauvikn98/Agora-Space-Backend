@@ -1,4 +1,4 @@
-const {Space} = require("../models");
+const { Space } = require("../models");
 
 // Function to create a new space/group
 const createSpace = async (req, res) => {
@@ -10,6 +10,9 @@ const createSpace = async (req, res) => {
       posts: req.body.posts,
       members: req.body.members,
     });
+    if (req.body.postId) {
+      space.posts.push(req.body.postId);
+    }
     await space.save();
     res.status(201).json(space);
   } catch (error) {
@@ -64,11 +67,18 @@ const updateSpace = async (req, res) => {
     if (!space) {
       return res.status(404).json({ message: "Space not found" });
     }
-    if (space.creator.toString() !== req.user._id.toString()) {
+    
+    {/*if (space.creator.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not authorized to update this space" });
     }
     space.name = req.body.name || space.name;
-    space.description = req.body.description || space.description;
+  space.description = req.body.description || space.description;*/}
+
+    // Add the new post ID to the posts array of the space document
+    if (req.body.postId) {
+      space.posts.push(req.body.postId);
+    }
+
     await space.save();
     res.status(200).json(space);
   } catch (error) {
@@ -76,6 +86,7 @@ const updateSpace = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 
 // Function to delete a space/group by ID
 const deleteSpace = async (req, res) => {
@@ -96,10 +107,10 @@ const deleteSpace = async (req, res) => {
 };
 
 module.exports = {
-    createSpace,
-    getSpaces,
-    getSpaceById,
-    getSpacePosts,
-    updateSpace,
-    deleteSpace 
+  createSpace,
+  getSpaces,
+  getSpaceById,
+  getSpacePosts,
+  updateSpace,
+  deleteSpace
 };

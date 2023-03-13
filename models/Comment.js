@@ -16,12 +16,19 @@ const commentSchema = new mongoose.Schema({
     ref: "comment",
     default: null,
   },
+  children: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "comment",
+      default: [],
+    }
+  ],
   content: {
     type: String,
     required: true,
   },
 },
-{ timestamps: true }
+  { timestamps: true }
 );
 
 module.exports = commentSchema;

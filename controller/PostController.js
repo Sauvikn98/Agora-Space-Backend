@@ -1,4 +1,5 @@
 const {Post} = require('../models');
+const { Space } = require("../models");
 
 // CREATE NEW POST
 const createPost = async (req, res) => {
@@ -11,6 +12,11 @@ const createPost = async (req, res) => {
       space: req.body.space,
       multimedia: req.body.multimedia,
     });
+    await Space.findByIdAndUpdate(
+      post.space,
+      { $push: { posts: post._id } },
+      { new: true }
+    );
     const savedPost = await post.save();
     res.status(201).json(savedPost);
   } catch (error) {
@@ -22,7 +28,7 @@ const createPost = async (req, res) => {
 // GET ALL POSTS
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().populate('author');
     res.json(posts);
   } catch (error) {
     console.error(error);

@@ -23,7 +23,7 @@ const {
   SpaceRouter.get("/spaces/:spaceId/posts", getSpacePosts);
 
   // update a space
-  SpaceRouter.patch("/spaces/:spaceId", auth, updateSpace);
+  SpaceRouter.put("/spaces/:spaceId", updateSpace);
 
   // delete a space
   SpaceRouter.delete("/spaces/:spaceId", auth, deleteSpace);

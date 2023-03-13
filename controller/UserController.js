@@ -7,7 +7,7 @@ const createUser = async (req, res) => {
   console.log(req.body)
   console.log(email, password, userName)
   try {
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ userName });
 
     if (user) {
       return res.status(400).json({ error: "User already exists" });
@@ -35,7 +35,7 @@ const createUser = async (req, res) => {
       { expiresIn: "7 days" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+        res.json({ token, user });
       }
     );
   } catch (error) {
