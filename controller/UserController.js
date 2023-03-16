@@ -97,20 +97,44 @@ const getUserByUserName = async (req, res) => {
   User.find({ userName }).then((users) => res.status(200).send(users));
 };
 
+
+
 const updateUser = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findByIdAndUpdate({ _id: id }, { new: true }).select(
-      "-updatedAt"
-    );
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['userName', 'email', 'password'];
+  const isValidUpdate = updates.every(update => allowedUpdates.includes(update));
+
+  if (!isValidUpdate) {
+    return res.status(400).send({ error: 'Invalid update(s)!' });
+  }
+
+  // find the user by id
+  const user = await User.findById(req.user.id);
+
+  // update the user properties
+  updates.forEach(async update => {
+    if (update === 'password') {
+      if (req.body.password) { // only update password if it is provided
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        user[update] = hashedPassword;
+      }
+    } else {
+      user[update] = req.body[update];
     }
-    res.json(user);
+  });
+
+  try {
+    // save the updated user
+    await user.save();
+
+    res.send(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).send(error);
   }
 };
+
+
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;

@@ -8,7 +8,7 @@ const {
   getUserById,
   updateUser,
   deleteUser,
-  } = require("../controller/UserController");
+} = require("../controller/UserController");
 
 // create a new user  
 UserRouter.post('/users/register', createUser);
@@ -23,10 +23,10 @@ UserRouter.get('/users/:userName', getUserByUserName);
 UserRouter.get('/users/:userId', getUserById);
 
 // update a user
-UserRouter.patch('/users/:userId', auth, updateUser);
+UserRouter.patch('/user', auth, updateUser);
 
 // delete a user
 UserRouter.delete('/users/:userId', auth, deleteUser);
 
 
-module.exports = {UserRoutes:UserRouter};
+module.exports = { UserRoutes: UserRouter };
