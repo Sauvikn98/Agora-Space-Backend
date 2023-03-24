@@ -1,18 +1,18 @@
-const {Notification} = require('../models');
+const { Notification } = require('../models');
 
 // Create a new notification
-const createNotification = async (req, res) => {
+const createNotification = async (notification) => {
   try {
-    const notification = new Notification({
-      userId: req.body.userId,
-      notificationType: req.body.notificationType,
-      intent: req.body.intent
+    const newNotification = new Notification({
+      userId: notification.userId,
+      notificationType: notification.notificationType,
+      seen: notification.seen,
+      intent: notification.intent
     });
-    await notification.save();
-    res.status(201).json(notification);
+    await newNotification.save();
+    return newNotification;
   } catch (error) {
     console.error(error);
-    res.status(500).send('Server Error');
   }
 };
 
@@ -55,8 +55,8 @@ const deleteNotification = async (req, res) => {
 
 
 module.exports = {
-    createNotification,
-    getNotificationsByUser,
-    markNotificationAsSeen,
-    deleteNotification
+  createNotification,
+  getNotificationsByUser,
+  markNotificationAsSeen,
+  deleteNotification
 }

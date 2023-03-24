@@ -1,6 +1,7 @@
 const { Comment } = require("../models");
 const { Post } = require("../models");
 
+
 // Function to create a new comment
 const createComment = async (req, res) => {
   try {
@@ -22,6 +23,7 @@ const createComment = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 
 const getCommentsByPost = async (req, res) => {
   try {
@@ -105,8 +107,9 @@ const deleteComment = async (req, res) => {
     }
     await comment.remove();
     res.status(200).json({ message: "Comment deleted" });
-  } catch (error) {
-    console.error(error);
+  }  catch (error) {
+    console.error(error.message);
+    console.error(error.stack);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
