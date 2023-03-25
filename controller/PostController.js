@@ -11,6 +11,8 @@ const createPost = async (req, res) => {
       author: req.body.author,
       space: req.body.space,
       multimedia: req.body.multimedia,
+      upvotes: req.body.upvotes,
+      downvotes: req.body.downvotes
     });
     await Space.findByIdAndUpdate(
       post.space,
@@ -74,6 +76,69 @@ const getPostById = async (req, res) => {
   }
 }
 
+// UPVOTE POST
+const upvotePost = async (req, res) => {
+  const postId = req.params.postId;
+  const userId = req.user._id;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Check if user has already upvoted the post
+    const hasUpvoted = post.upvotes.includes(userId);
+    if (hasUpvoted) {
+      return res.status(400).json({ message: 'User has already upvoted the post' });
+    }
+
+    // Remove user's downvote if they have already downvoted
+    if (post.downvotes.includes(userId)) {
+      await Post.findByIdAndUpdate(postId, { $pull: { downvotes: userId } });
+    }
+
+    // Add user's upvote
+    await Post.findByIdAndUpdate(postId, { $push: { upvotes: userId } });
+    res.json({ message: 'Post upvoted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+// DOWNVOTE POST
+const downvotePost = async (req, res) => {
+  const postId = req.params.postId;
+  const userId = req.user._id;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Check if user has already downvoted the post
+    const hasDownvoted = post.downvotes.includes(userId);
+    if (hasDownvoted) {
+      return res.status(400).json({ message: 'User has already downvoted the post' });
+    }
+
+    // Remove user's upvote if they have already upvoted
+    if (post.upvotes.includes(userId)) {
+      await Post.findByIdAndUpdate(postId, { $pull: { upvotes: userId } });
+    }
+
+    // Add user's downvote
+    await Post.findByIdAndUpdate(postId, { $push: { downvotes: userId } });
+    res.json({ message: 'Post downvoted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+
 // UPDATE
 const updatePost = async (req, res) => {
   const id = req.params.id;
@@ -115,6 +180,8 @@ module.exports = {
   createPost,
   getPosts,
   getPostsByKeywordAndCategory,
+  upvotePost,
+  downvotePost,
   getPostById,
   updatePost,
   deletePost,
