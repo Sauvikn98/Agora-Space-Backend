@@ -50,7 +50,7 @@ function setupSocket(server) {
             const memberId = member.toString();
             const memberSocketId = userSockets[memberId];
             if (memberSocketId) {
-              io.to(memberSocketId).emit('newNotification', newNotification);
+              io.to(memberSocketId).emit('joinSpaceNotification', newNotification);
               console.log(`New notification created for user ${memberId} and the notification is ${newNotification}`);
             } else {
               console.log(`User ${memberId} is not connected`);
@@ -61,6 +61,32 @@ function setupSocket(server) {
         console.error(error);
       }
     });
+
+
+    socket.on('leaveSpace', async ({ spaceId, notification }) => {
+      socket.leave(spaceId);
+      console.log(`User ${socket.user._id} left space ${spaceId}`);
+      try {
+        const spaces = await Space.find({ _id: spaceId });
+        const newNotification = await createNotification(notification);
+        spaces.forEach((space) => {
+          const members = space.members.filter((member) => member.toString() !== socket.user._id.toString());
+          members.forEach((member) => {
+            const memberId = member.toString();
+            const memberSocketId = userSockets[memberId];
+            if (memberSocketId) {
+              io.to(memberSocketId).emit('leaveSpaceNotification', newNotification);
+              console.log(`New notification created for user ${memberId} and the notification is ${newNotification}`);
+            } else {
+              console.log(`User ${memberId} is not connected`);
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error finding spaces:', error);
+      }
+    });
+    
 
     {/*socket.on('notification', async (notification) => {
       try {
