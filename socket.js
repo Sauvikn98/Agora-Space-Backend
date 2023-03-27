@@ -37,6 +37,7 @@ function setupSocket(server) {
   io.on('connection', (socket) => {
     console.log('New client connected', socket.user._id.toString());
     userSockets[socket.user._id.toString()] = socket.id;
+    socket.emit('online', { userId: socket.user._id });
 
     socket.on('joinSpace', async ({ spaceId, notification }) => {
       socket.join(spaceId);
@@ -86,7 +87,7 @@ function setupSocket(server) {
         console.error('Error finding spaces:', error);
       }
     });
-    
+
 
     {/*socket.on('notification', async (notification) => {
       try {
@@ -104,6 +105,7 @@ function setupSocket(server) {
 
     socket.on('disconnect', () => {
       console.log(`User disconnected`, socket.user._id.toString())
+      socket.emit('offline', { userId: socket.user._id });
     })
 
   });

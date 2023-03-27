@@ -7,7 +7,7 @@ const createPost = async (req, res) => {
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
-      category: req.body.category, 
+      labels: req.body.labels, 
       author: req.body.author,
       space: req.body.space,
       multimedia: req.body.multimedia,

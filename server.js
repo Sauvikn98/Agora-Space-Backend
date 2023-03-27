@@ -12,7 +12,7 @@ const { NotificationRoutes } = require("./routes/NotificationRoutes");
 const app = express();
 const server = require('http').createServer(app);
 const setupSocket = require("./socket")
-const io = setupSocket(server);
+setupSocket(server);
 
 //body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -26,7 +26,6 @@ app.use(PostRoutes);
 app.use(SpaceRoutes);
 app.use(CommentRoutes);
 app.use(NotificationRoutes);
-app.set('io', io)
 
 
 const port = process.env.PORT || 5000;

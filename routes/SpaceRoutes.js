@@ -6,9 +6,14 @@ const {
   getSpaces,
   getSpaceById,
   getSpacePosts,
-  updateSpace,
   joinSpace,
   leaveSpace,
+  getSpaceMembers,
+  createLabel,
+  getAllLabels,
+  updateLabel,
+  deleteLabel,
+  updateSpace,
   deleteSpace
 } = require("../controller/SpaceController");
 
@@ -24,14 +29,29 @@ SpaceRouter.get("/spaces/:spaceId", getSpaceById);
 // get all Posts of a particular space
 SpaceRouter.get("/spaces/:spaceId/posts", getSpacePosts);
 
-// update a space
-SpaceRouter.put("/spaces/:spaceId", updateSpace);
-
 // join a space
 SpaceRouter.put("/spaces/:spaceId/join", auth, joinSpace);
 
 // leave a space
 SpaceRouter.delete("/spaces/:spaceId/leave", auth, leaveSpace);
+
+// get all members of a particular space
+SpaceRouter.get("/spaces/:spaceId/members", getSpaceMembers);
+
+// create space labels
+SpaceRouter.post("/spaces/:spaceId/labels", createLabel);
+
+// get all space labels
+SpaceRouter.get("/spaces/:spaceId/labels", getAllLabels);
+
+// update a space label
+SpaceRouter.put("/spaces/:spaceId/labels/:labelId", updateLabel);
+
+// delete a space label
+SpaceRouter.delete("/spaces/:spaceId/labels/:labelId", deleteLabel);
+
+// update a space
+SpaceRouter.put("/spaces/:spaceId", updateSpace);
 
 // delete a space
 SpaceRouter.delete("/spaces/:spaceId", auth, deleteSpace);
