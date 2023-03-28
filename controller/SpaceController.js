@@ -65,7 +65,7 @@ const getSpacePosts = async (req, res) => {
 // join a space
 const joinSpace = async (req, res) => {
   const spaceId = req.params.spaceId;
-  const userId = req.user._id; 
+  const userId = req.user._id;
   console.log(spaceId);
   console.log(userId);
 
@@ -77,7 +77,7 @@ const joinSpace = async (req, res) => {
     }
     space.members.push(userId);
     await space.save();
-    
+
     return res.status(200).json({ message: "User joined the space successfully" });
   } catch (error) {
     console.error(error);
@@ -98,7 +98,7 @@ const leaveSpace = async (req, res) => {
 
     space.members = space.members.filter(memberId => !memberId.equals(userId));
     await space.save();
-    return res.status(200).json({ mess1age: "User left the space successfully" });
+    return res.status(200).json({ message: "User left the space successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to leave the space" });

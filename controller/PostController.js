@@ -1,24 +1,57 @@
-const {Post} = require('../models');
+const { upload } = require('../cloudinary/cloudinary');
+const { Post } = require('../models');
 const { Space } = require("../models");
+const cloudinary = require("cloudinary").v2;
 
-// CREATE NEW POST
 const createPost = async (req, res) => {
   try {
+    let multimediaUrl = null;
+
+    // Upload multimedia file using multer and cloudinary
+    const uploadPromise = new Promise((resolve, reject) => {
+      upload.single('multimedia')(req, res, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        
+        if (!req.file) {
+          return reject(new Error('No file uploaded'));
+        }
+
+        // Upload file to cloudinary
+        cloudinary.uploader.upload(req.file.path, (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+          multimediaUrl = result.secure_url;
+          resolve();
+        });
+      });
+    });
+
+    await uploadPromise;
+
+    // Create new post object with multimedia URL
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
-      labels: req.body.labels, 
+      labels: req.body.labels,
       author: req.body.author,
       space: req.body.space,
-      multimedia: req.body.multimedia,
+      multimedia: multimediaUrl,
       upvotes: req.body.upvotes,
       downvotes: req.body.downvotes
     });
+
+    // Add post ID to space's posts array
     await Space.findByIdAndUpdate(
       post.space,
       { $push: { posts: post._id } },
       { new: true }
     );
+
+    // Save post to database
     const savedPost = await post.save();
     res.status(201).json(savedPost);
   } catch (error) {
@@ -47,7 +80,7 @@ const getPostsByKeywordAndCategory = async (req, res) => {
       title: { $regex: new RegExp(text, 'i') },
       category: category
     });
-    
+
     if (posts.length === 0) {
       return res.status(404).json({ error: 'No matching posts found' });
     }
@@ -59,7 +92,7 @@ const getPostsByKeywordAndCategory = async (req, res) => {
   }
 }
 
-  
+
 
 // SEARCH POST BY POST ID
 const getPostById = async (req, res) => {
