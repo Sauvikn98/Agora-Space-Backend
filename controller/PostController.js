@@ -19,7 +19,7 @@ const createPost = async (req, res) => {
         }
 
         // Upload file to cloudinary
-        cloudinary.uploader.upload(req.file.path, (error, result) => {
+        cloudinary.uploader.upload(req.file.path, {resource_type: "raw"}, (error, result) => {
           if (error) {
             return reject(error);
           }
@@ -71,15 +71,14 @@ const getPosts = async (req, res) => {
   }
 }
 
-// SEARCH POST BY KEYWORD AND CATEGORY
-const getPostsByKeywordAndCategory = async (req, res) => {
-  const { text, category } = req.query;
+// SEARCH POST BY KEYWORD
+const getPostsByKeyword = async (req, res) => {
+  const { text } = req.query;
 
   try {
     const posts = await Post.find({
-      title: { $regex: new RegExp(text, 'i') },
-      category: category
-    });
+        title: { $regex: new RegExp(text, 'i') }
+    }).populate('author');    
 
     if (posts.length === 0) {
       return res.status(404).json({ error: 'No matching posts found' });
@@ -212,7 +211,7 @@ const deletePost = async (req, res) => {
 module.exports = {
   createPost,
   getPosts,
-  getPostsByKeywordAndCategory,
+  getPostsByKeyword,
   upvotePost,
   downvotePost,
   getPostById,

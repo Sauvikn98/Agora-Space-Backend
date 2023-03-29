@@ -4,7 +4,7 @@ const auth = require("../middleware/auth");
 const {
   createPost,
   getPosts,
-  getPostsByKeywordAndCategory,
+  getPostsByKeyword,
   getPostById,
   upvotePost,
   downvotePost,
@@ -18,8 +18,8 @@ PostRouter.post("/posts", createPost);
 // get all posts
 PostRouter.get("/posts", getPosts);
 
-// make GET requests to /posts/search?text=keyword&category=categoryname
-PostRouter.get('/posts/search', getPostsByKeywordAndCategory);
+// search posts by keyword /posts/search?text=asdsd
+PostRouter.get('/posts/search', getPostsByKeyword);
 
 // get post with a postId
 PostRouter.get("/posts/:postId", getPostById);

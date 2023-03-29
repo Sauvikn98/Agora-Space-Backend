@@ -19,7 +19,7 @@ const postSchema = new mongoose.Schema(
         labels: [{
             type: String,
             ref: "space.labels",
-        }],        
+        }],
         space: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "space",
