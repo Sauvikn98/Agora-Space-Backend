@@ -1,4 +1,6 @@
+const { upload } = require("../cloudinary/cloudinary");
 const { Space } = require("../models");
+const cloudinary = require("cloudinary").v2;
 
 // Function to create a new space/group
 const createSpace = async (req, res) => {
@@ -10,6 +12,7 @@ const createSpace = async (req, res) => {
       posts: req.body.posts,
       members: req.body.members,
       category: req.body.category,
+      coverPhoto: req.body.coverPhoto,
       labels: req.body.labels
     });
     if (req.body.postId) {
@@ -20,6 +23,48 @@ const createSpace = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+const uploadCoverPhoto = async (req, res) => {
+  const spaceId = req.params.spaceId;
+  try {
+    const space = await Space.findById(spaceId);
+    if (!space) {
+      return res.status(404).json({ message: 'Space not found' });
+    }
+
+    let coverPhotoUrl = null;
+
+    const uploadPromise = new Promise((resolve, reject) => {
+      upload.single('coverPhoto')(req, res, (err) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (!req.file) {
+          return reject(new Error('No file uploaded'));
+        }
+
+        cloudinary.uploader.upload(req.file.path, (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+          coverPhotoUrl = result.secure_url;
+          resolve();
+        });
+      });
+    });
+
+    await uploadPromise;
+    space.coverPhoto = coverPhotoUrl;
+    await space.save();
+
+    res.json(space);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -70,7 +115,6 @@ const joinSpace = async (req, res) => {
   console.log(userId);
 
   try {
-    // check if the user is already a member of the space
     const space = await Space.findById(spaceId);
     if (space.members.includes(userId)) {
       return res.status(400).json({ error: "User is already a member of the space" });
@@ -258,6 +302,7 @@ module.exports = {
   getSpacePosts,
   joinSpace,
   leaveSpace,
+  uploadCoverPhoto,
   getSpaceMembers,
   createLabel,
   getAllLabels,

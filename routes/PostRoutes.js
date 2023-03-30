@@ -31,7 +31,7 @@ PostRouter.patch("/posts/:postId/upvote", auth, upvotePost);
 PostRouter.patch("/posts/:postId/downvote", auth, downvotePost);
 
 // update a post
-PostRouter.patch("/posts/:postId", auth, updatePost);
+PostRouter.put("/posts/:postId", auth, updatePost);
 
 // delete a post
 PostRouter.delete("/posts/:postId", auth, deletePost);

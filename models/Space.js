@@ -24,6 +24,9 @@ const spaceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     }],
+    coverPhoto: {
+      type: String
+    },
     category: {
       type: [String],
       enum: ['Gaming', 'Sports', 'Business', 'Technology', 'Art', 'Anime', 'Crypto', 'Fashion', 'Food and Drink'],

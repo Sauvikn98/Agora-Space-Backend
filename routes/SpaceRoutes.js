@@ -11,6 +11,7 @@ const {
   getSpaceMembers,
   createLabel,
   getAllLabels,
+  uploadCoverPhoto,
   updateLabel,
   deleteLabel,
   updateSpace,
@@ -40,6 +41,9 @@ SpaceRouter.get("/spaces/:spaceId/members", getSpaceMembers);
 
 // create space labels
 SpaceRouter.post("/spaces/:spaceId/labels", createLabel);
+
+// upload cover photo
+SpaceRouter.post("/spaces/:spaceId/cover-photo", auth, uploadCoverPhoto);
 
 // get all space labels
 SpaceRouter.get("/spaces/:spaceId/labels", getAllLabels);
