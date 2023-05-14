@@ -1,5 +1,5 @@
 const { upload } = require("../cloudinary/cloudinary");
-const { Space } = require("../models");
+const { Space, User } = require("../models");
 const cloudinary = require("cloudinary").v2;
 
 // Function to create a new space/group
@@ -18,6 +18,13 @@ const createSpace = async (req, res) => {
     if (req.body.postId) {
       space.posts.push(req.body.postId);
     }
+
+    await User.findByIdAndUpdate(
+      space.creator,
+      { $push: { spaces: space._id } },
+      { new: true }
+    );
+
     await space.save();
     res.status(201).json(space);
   } catch (error) {
@@ -45,6 +52,8 @@ const uploadCoverPhoto = async (req, res) => {
         if (!req.file) {
           return reject(new Error('No file uploaded'));
         }
+
+        console.log(req.file.path)
 
         cloudinary.uploader.upload(req.file.path, (error, result) => {
           if (error) {
@@ -82,7 +91,7 @@ const getSpaces = async (req, res) => {
 // Function to get a single space/group by ID
 const getSpaceById = async (req, res) => {
   try {
-    const space = await Space.findById(req.params.spaceId).populate("creator", "userName");
+    const space = await Space.findById(req.params.spaceId).populate("creator");
     if (!space) {
       return res.status(404).json({ message: "Space not found" });
     }
@@ -111,8 +120,6 @@ const getSpacePosts = async (req, res) => {
 const joinSpace = async (req, res) => {
   const spaceId = req.params.spaceId;
   const userId = req.user._id;
-  console.log(spaceId);
-  console.log(userId);
 
   try {
     const space = await Space.findById(spaceId);
@@ -121,7 +128,11 @@ const joinSpace = async (req, res) => {
     }
     space.members.push(userId);
     await space.save();
-
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { spaces: spaceId } },
+      { new: true }
+    );
     return res.status(200).json({ message: "User joined the space successfully" });
   } catch (error) {
     console.error(error);

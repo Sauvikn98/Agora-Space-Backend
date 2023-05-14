@@ -18,6 +18,7 @@ const createComment = async (req, res) => {
     );
     await comment.save();
     res.status(201).json(comment);
+    req.app.get('io').emit('newComment', {newComment: comment});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });

@@ -12,7 +12,7 @@ const {
   NotificationRouter.post("/notifications", createNotification);
 
   // Get all notifications for a user
-  NotificationRouter.get("/notifications/:userId", getNotificationsByUser);
+  NotificationRouter.get("/notifications/:receiver", getNotificationsByUser);
 
   // Mark a notification as seen
   NotificationRouter.patch("/notifications/seen", auth, markNotificationAsSeen);

@@ -1,11 +1,11 @@
-const { User } = require("../models")
+const { User, Post} = require("../models")
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const createUser = async (req, res) => {
-  const { email, password, userName, /*profileImage*/ } = req.body;
+  const { email, password, userName, online, /*profileImage*/ } = req.body;
   console.log(req.body)
-  console.log(email, password, userName)
+  console.log(email, password, userName, online)
   try {
     let user = await User.findOne({ userName });
 
@@ -16,7 +16,8 @@ const createUser = async (req, res) => {
     user = new User({
       userName,
       email,
-      password
+      password,
+      online
       /*profileImage*/
     })
     const salt = await bcrypt.genSalt(10);
@@ -150,11 +151,66 @@ const deleteUser = async (req, res) => {
 };
 
 
+const addBookmark = async (req, res) => {
+  const postId = req.params.postId;
+  const userId = req.user._id
+
+  try {
+    // Check if user exists
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Check if post exists
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Check if post is already bookmarked by user
+    if (user.bookmarks.includes(postId)) {
+      return res.status(400).json({ error: "Post already bookmarked" });
+    }
+
+    // Add post to user's bookmarks
+    user.bookmarks.push(postId);
+    await user.save();
+
+    res.status(200).json({ message: "Post bookmarked successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getAllBookmarks = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    // Check if user exists
+    const user = await User.findById(userId).populate("bookmarks");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user.bookmarks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUserById,
   getUserByUserName,
   updateUser,
-  deleteUser
+  deleteUser,
+  addBookmark,
+  getAllBookmarks
 }

@@ -4,7 +4,8 @@ const { Notification } = require('../models');
 const createNotification = async (notification) => {
   try {
     const newNotification = new Notification({
-      userId: notification.userId,
+      sender: notification.sender,
+      receiver: notification.receiver,
       notificationType: notification.notificationType,
       seen: notification.seen,
       intent: notification.intent
@@ -15,11 +16,10 @@ const createNotification = async (notification) => {
     console.error(error);
   }
 };
-
 // Get all notifications for a user
 const getNotificationsByUser = async (req, res) => {
   try {
-    const notifications = await Notification.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ receiver: req.params.receiver }).sort({ createdAt: -1 });
     res.status(200).json(notifications);
   } catch (error) {
     console.error(error);

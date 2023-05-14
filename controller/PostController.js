@@ -13,7 +13,7 @@ const createPost = async (req, res) => {
           return reject(err);
         }
         if (!req.file) {
-          return reject(new Error('No file uploaded'));
+          return resolve();
         }
         cloudinary.uploader.upload(req.file.path, { resource_type: "raw" }, (error, result) => {
           if (error) {
@@ -30,13 +30,19 @@ const createPost = async (req, res) => {
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
-      labels: req.body.labels,
       author: req.body.author,
       space: req.body.space,
-      multimedia: multimediaUrl,
       upvotes: req.body.upvotes,
       downvotes: req.body.downvotes
     });
+
+    if (req.body.label) {
+      post.label = req.body.label;
+    }
+
+    if (multimediaUrl) {
+      post.multimedia = multimediaUrl;
+    }
 
     await Space.findByIdAndUpdate(
       post.space,
@@ -73,7 +79,7 @@ const getPostsByKeyword = async (req, res) => {
     }).populate('author');
 
     if (posts.length === 0) {
-      return res.status(404).json({ error: 'No matching posts found' });
+      return res.status(200).json({ message: 'No matching posts found' });
     }
 
     return res.json(posts);
@@ -113,7 +119,8 @@ const upvotePost = async (req, res) => {
 
     const hasUpvoted = post.upvotes.includes(userId);
     if (hasUpvoted) {
-      return res.status(400).json({ message: 'User has already upvoted the post' });
+      await Post.findByIdAndUpdate(postId, { $pull: { upvotes: userId } });
+      return res.json({ message: 'Post upvote removed' });
     }
 
     if (post.downvotes.includes(userId)) {
@@ -140,7 +147,8 @@ const downvotePost = async (req, res) => {
 
     const hasDownvoted = post.downvotes.includes(userId);
     if (hasDownvoted) {
-      return res.status(400).json({ message: 'User has already downvoted the post' });
+      await Post.findByIdAndUpdate(postId, { $pull: { downvotes: userId } });
+      return res.json({ message: 'Post downvote removed' });
     }
 
     if (post.upvotes.includes(userId)) {
