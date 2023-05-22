@@ -11,101 +11,74 @@ function setupSocket(server) {
     }
   });
 
-  io.use((socket, next) => {
-    const token = socket.handshake.auth.token;
-
-    if (!token) {
-      return next(new Error("Authorization token is missing, access denied"));
-    }
-
-    jwt.verify(token, process.env.JWT_TOKEN, async (error, decoded) => {
-      if (error) {
-        return next(new Error("Invalid Token, access denied"));
-      } else {
-        const user = await User.findOne({ _id: decoded.user.id });
-        if (!user) {
-          return next(new Error("User not found, access denied"));
-        }
-        socket.user = user;
-        next();
-      }
-    });
-  });
-
-  const userSockets = {};
-
-  io.on('connection', (socket) => {
-    console.log('New client connected', socket.user._id.toString());
-    userSockets[socket.user._id.toString()] = socket.id;
-    socket.emit('online', { userId: socket.user._id });
-
-    socket.on('joinSpace', async ({ spaceId, notification }) => {
-      socket.join(spaceId);
-      console.log(`User ${socket.user._id} joined space ${spaceId}`);
-      try {
-        const spaces = await Space.find({ _id: spaceId, members: socket.user._id });
-        const newNotification = await createNotification(notification);
-        spaces.forEach((space) => {
-          const members = space.members.filter((member) => member.toString() !== socket.user._id.toString());
-          members.forEach((member) => {
-            const memberId = member.toString();
-            const memberSocketId = userSockets[memberId];
-            if (memberSocketId) {
-              io.to(memberSocketId).emit('joinSpaceNotification', newNotification);
-              console.log(`New notification created for user ${memberId} and the notification is ${newNotification}`);
-            } else {
-              console.log(`User ${memberId} is not connected`);
-            }
-          });
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    });
-
-
-    socket.on('leaveSpace', async ({ spaceId, notification }) => {
-      socket.leave(spaceId);
-      console.log(`User ${socket.user._id} left space ${spaceId}`);
-      try {
-        const spaces = await Space.find({ _id: spaceId });
-        const newNotification = await createNotification(notification);
-        spaces.forEach((space) => {
-          const members = space.members.filter((member) => member.toString() !== socket.user._id.toString());
-          members.forEach((member) => {
-            const memberId = member.toString();
-            const memberSocketId = userSockets[memberId];
-            if (memberSocketId) {
-              io.to(memberSocketId).emit('leaveSpaceNotification', newNotification);
-              console.log(`New notification created for user ${memberId} and the notification is ${newNotification}`);
-            } else {
-              console.log(`User ${memberId} is not connected`);
-            }
-          });
-        });
-      } catch (error) {
-        console.error('Error finding spaces:', error);
-      }
-    });
-
-
-    {/*socket.on('notification', async (notification) => {
-      try {
-        // Create a new notification document and save it to the database
-        const newNotification = await createNotification(notification);
-        // Emit the new notification to all other sockets except for the sender
-        socket.broadcast.emit('newNotification12', newNotification);
-        console.log('New Notification created:', newNotification);
-      } catch (error) {
-        console.error(error);
-      }
-    });
+  io.on("connection", (socket) => {
+    console.log("New socket connected", socket.id)
     
-  */}
+    socket.on('joinSpaceChannel', (spaceId) => {
+      socket.join(spaceId)
+      console.log(`User joined ${spaceId} space channel`);
 
-    socket.on('disconnect', () => {
-      console.log(`User disconnected`, socket.user._id.toString())
-      socket.emit('offline', { userId: socket.user._id });
+
+      // Emit 'joinedSpace' event to the joined space channel
+      socket.to(spaceId).emit('joinedSpace', {
+        message: 'A user has joined the space channel.',
+        user: socket.id, // Replace with the appropriate user information
+        spaceId: spaceId
+      });
+
+      // Emit 'leftSpace' event to the joined space channel
+      socket.on('disconnect', () => {
+        socket.to(spaceId).emit('leftSpace', {
+          message: 'A user has left the space channel.',
+          user: socket.id, // Replace with the appropriate user information
+          spaceId: spaceId
+        });
+      });
+
+      // Emit 'postComment' event to the joined space channel
+      socket.on('postComment', (comment) => {
+        socket.to(spaceId).emit('postComment', {
+          comment: comment,
+          user: socket.id // Replace with the appropriate user information
+        });
+      });
+
+      // Emit 'commentReply' event to the joined space channel
+      socket.on('commentReply', (reply) => {
+        socket.to(spaceId).emit('commentReply', {
+          reply: reply,
+          user: socket.id // Replace with the appropriate user information
+        });
+      });
+
+      // Emit 'commentMention' event to the joined space channel
+      socket.on('commentMention', (mention) => {
+        socket.to(spaceId).emit('commentMention', {
+          mention: mention,
+          user: socket.id // Replace with the appropriate user information
+        });
+      });
+
+      // Emit 'newPost' event to the joined space channel
+      socket.on('newPost', (post) => {
+        socket.to(spaceId).emit('newPost', {
+          post: post,
+          user: socket.id // Replace with the appropriate user information
+        });
+      });
+    })
+
+    socket.on('leaveSpaceChannel', (spaceId) => {
+      socket.leave(spaceId)
+      console.log(`User left ${spaceId} space channel`)
+    })
+
+    socket.on('joinUserChannel', (userId) => {
+      socket.join(userId)
+    })
+
+    socket.on('leaveUserChannel', (userId) => {
+      socket.leave(userId)
     })
 
   });

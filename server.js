@@ -9,6 +9,7 @@ const { PostRoutes } = require("./routes/PostRoutes");
 const { SpaceRoutes } = require("./routes/SpaceRoutes");
 const { CommentRoutes } = require("./routes/CommentRoutes");
 const { NotificationRoutes } = require("./routes/NotificationRoutes");
+const {RefreshTokenRoutes} = require("./routes/RefreshTokenRoutes")
 const app = express();
 const server = require('http').createServer(app);
 const setupSocket = require("./socket")
@@ -26,6 +27,7 @@ app.use(PostRoutes);
 app.use(SpaceRoutes);
 app.use(CommentRoutes);
 app.use(NotificationRoutes);
+app.use(RefreshTokenRoutes);
 
 
 const port = process.env.PORT || 5000;

@@ -9,6 +9,7 @@ const notificationSchema = new mongoose.Schema(
     },
     notificationType: {
       type: String,
+      enum: ['joinedSpace', 'leftSpace', 'postComment', 'commentReply', 'commentMention', 'newPost' ],
       required: true
     },
     seen: {
