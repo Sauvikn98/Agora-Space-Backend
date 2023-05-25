@@ -1,6 +1,7 @@
 const { upload } = require("../cloudinary/cloudinary");
-const { Space } = require("../models");
-const cloudinary = require("cloudinary").v2;
+const { Space, User, Label} = require("../models");
+const cloudinary = require("cloudinary").v2;;
+const _ = require("lodash");
 
 // Function to create a new space/group
 const createSpace = async (req, res) => {
@@ -18,7 +19,13 @@ const createSpace = async (req, res) => {
     if (req.body.postId) {
       space.posts.push(req.body.postId);
     }
+    space.members.push(req.body.creator);
     await space.save();
+
+    await User.findByIdAndUpdate(req.body.creator, {
+      $push: { "spaces.created": space._id }
+    });
+
     res.status(201).json(space);
   } catch (error) {
     console.error(error);
@@ -71,7 +78,7 @@ const uploadCoverPhoto = async (req, res) => {
 // Function to get all spaces/groups
 const getSpaces = async (req, res) => {
   try {
-    const spaces = await Space.find().populate("posts");
+    const spaces = await Space.find().populate("posts").populate("labels");
     res.status(200).json(spaces);
   } catch (error) {
     console.error(error);
@@ -122,6 +129,10 @@ const joinSpace = async (req, res) => {
     space.members.push(userId);
     await space.save();
 
+    await User.findByIdAndUpdate(userId, {
+      $push: { "spaces.memberOf": space._id }
+    });
+
     return res.status(200).json({ message: "User joined the space successfully" });
   } catch (error) {
     console.error(error);
@@ -142,6 +153,9 @@ const leaveSpace = async (req, res) => {
 
     space.members = space.members.filter(memberId => !memberId.equals(userId));
     await space.save();
+    await User.findByIdAndUpdate(userId, {
+      $pull: { "spaces.memberOf": space._id }
+    });
     return res.status(200).json({ message: "User left the space successfully" });
   } catch (error) {
     console.error(error);
@@ -174,12 +188,16 @@ const createLabel = async (req, res) => {
       return res.status(404).json({ message: 'Space not found' });
     }
 
-    const newLabel = { name: req.body.name, color: req.body.color };
-    console.log(newLabel)
-    space.labels.push(newLabel);
-    await space.save();
+    const label = new Label({
+      name: req.body.name, color: req.body.color, spaceId: space._id 
+    });
+    console.log(label)
+    await label.save();
+    await Space.findByIdAndUpdate(spaceId, {
+      $push: { "labels": label._id }
+    });
 
-    res.status(201).json(newLabel);
+    res.status(201).json(label);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -188,17 +206,11 @@ const createLabel = async (req, res) => {
 const getAllLabels = async (req, res) => {
   try {
     const { spaceId } = req.params;
-
-    const space = await Space.findById(spaceId);
-
-    if (!space) {
-      return res.status(404).json({ message: 'Space not found' });
-    }
-
-    const labels = space.labels;
+    const labels = await Label.find({ spaceId }).exec();
     res.json(labels);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    console.error("Error in getAllLabelsForSpace:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -295,6 +307,73 @@ const deleteSpace = async (req, res) => {
   }
 };
 
+// Function to calculate cosine similarity between two vectors
+function cosineSimilarity(vectorA, vectorB) {
+  const dotProduct = _.sum(_.zipWith(vectorA, vectorB, (a, b) => a * b));
+  const magnitudeA = Math.sqrt(_.sum(_.map(vectorA, (a) => a * a)));
+  const magnitudeB = Math.sqrt(_.sum(_.map(vectorB, (b) => b * b)));
+  return dotProduct / (magnitudeA * magnitudeB);
+}
+
+// Function to get space recommendations for a user
+async function getSpaceRecommendations(userId) {
+  try {
+    // Get the user's spaces
+    const user = await User.findById(userId).populate("spaces.memberOf");
+    const userSpaces = user.spaces.memberOf.map((space) => space._id.toString());
+
+    // Fetch all spaces from the database
+    const allSpaces = await Space.find().populate("members");
+
+    // Filter spaces by category and exclude spaces the user is already a member of
+    const userCategories = _.flatMap(userSpaces, (spaceId) => {
+      const space = allSpaces.find((s) => s._id.toString() === spaceId);
+      return space ? space.category : [];
+    });
+    const filteredSpaces = _.filter(allSpaces, (space) =>
+      _.intersection(userCategories, space.category).length > 0 &&
+      !userSpaces.includes(space._id.toString())
+    );
+
+    // Calculate user similarity based on space membership using cosine similarity
+    const userVectors = _.map(filteredSpaces, (space) => {
+      const members = space.members.map((member) => member._id.toString());
+      return _.map(userSpaces, (userSpace) =>
+        members.includes(userSpace) ? 1 : 0
+      );
+    });
+    const currentUserVector = _.map(userSpaces, (userSpace) =>
+      userSpace === userId ? 1 : 0
+    );
+    const similarities = _.map(userVectors, (vector) =>
+      cosineSimilarity(vector, currentUserVector)
+    );
+
+    // Sort spaces by similarity in descending order
+    const sortedSpaces = _.orderBy(filteredSpaces, similarities, "desc");
+
+    return sortedSpaces;
+  } catch (error) {
+    console.error("Error in getSpaceRecommendations:", error);
+    throw error;
+  }
+}
+
+
+
+
+// Function to delete a space/group by ID
+const getAllSpaceRecommendations = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const recommendations = await getSpaceRecommendations(userId);
+    res.json(recommendations);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Failed to retrieve space recommendations" });
+  }
+};
+
 module.exports = {
   createSpace,
   getSpaces,
@@ -309,5 +388,6 @@ module.exports = {
   updateLabel,
   deleteLabel,
   updateSpace,
-  deleteSpace
+  deleteSpace,
+  getAllSpaceRecommendations
 };

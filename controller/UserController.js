@@ -1,4 +1,4 @@
-const { User, RefreshToken } = require("../models")
+const { User, RefreshToken, Comment, Space, Post, Notification } = require("../models")
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
@@ -182,10 +182,21 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   const userId = req.user._id;
   try {
-    const user = await User.findByIdAndDelete(userId);
+    // Find the user and update the fields you want to keep
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      { $unset: { email: 1, password: 1 } },
+      { new: true }
+    );
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    // Delete the user's posts
+    await Post.deleteMany({ author: userId });
+    await Space.updateMany({ creator: userId }, { $unset: { creator: 1 } });
+
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -45,6 +45,24 @@ const userSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "post"
         }],
+        spaces: {
+            created: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "space",
+                },
+            ],
+            memberOf: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "space",
+                },
+            ],
+        },
+        posts: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "post"
+        }],
         password: {
             type: String,
             required: true,

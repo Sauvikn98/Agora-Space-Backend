@@ -15,7 +15,8 @@ const {
   updateLabel,
   deleteLabel,
   updateSpace,
-  deleteSpace
+  deleteSpace,
+  getAllSpaceRecommendations
 } = require("../controller/SpaceController");
 
 // create new space
@@ -59,6 +60,9 @@ SpaceRouter.put("/spaces/:spaceId", updateSpace);
 
 // delete a space
 SpaceRouter.delete("/spaces/:spaceId", auth, deleteSpace);
+
+
+SpaceRouter.get("/spaces/space-recommendations/:userId", getAllSpaceRecommendations);
 
 
 module.exports = { SpaceRoutes: SpaceRouter };

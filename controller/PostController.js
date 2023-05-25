@@ -1,7 +1,8 @@
 const { upload } = require('../cloudinary/cloudinary');
 const { Post } = require('../models');
-const { Space } = require("../models");
+const { Space, User } = require("../models");
 const cloudinary = require("cloudinary").v2;
+const _ = require("lodash");
 
 const createPost = async (req, res) => {
   try {
@@ -43,6 +44,10 @@ const createPost = async (req, res) => {
       { $push: { posts: post._id } },
       { new: true }
     );
+
+    await User.findByIdAndUpdate(req.body.author, {
+      $push: { "posts": post._id }
+    });
 
     const savedPost = await post.save();
     res.status(201).json(savedPost);
@@ -202,6 +207,67 @@ const deletePost = async (req, res) => {
   }
 }
 
+// Function to calculate cosine similarity between two vectors
+function cosineSimilarity(vectorA, vectorB) {
+  const dotProduct = _.sum(_.zipWith(vectorA, vectorB, (a, b) => a * b));
+  const magnitudeA = Math.sqrt(_.sum(_.map(vectorA, (a) => a * a)));
+  const magnitudeB = Math.sqrt(_.sum(_.map(vectorB, (b) => b * b)));
+  return dotProduct / (magnitudeA * magnitudeB);
+}
+
+async function getPostRecommendations(userId) {
+  try {
+    // Get the user's posts
+    const user = await User.findById(userId).populate("posts");
+    const userPosts = user.posts.map((post) => post._id.toString());
+
+    // Fetch all posts from the database
+    const allPosts = await Post.find().populate("space");
+
+    // Filter posts by space category and exclude user's own posts
+    const userCategories = _.flatMap(userPosts, (postId) => {
+      const post = allPosts.find((p) => p._id.toString() === postId);
+      return post ? post.space.category : [];
+    });
+    const filteredPosts = _.filter(allPosts, (post) =>
+      _.intersection(userCategories, post.space.category).length > 0 &&
+      !userPosts.includes(post._id.toString())
+    );
+
+    // Calculate user similarity based on post categories using cosine similarity
+    const userVectors = _.map(filteredPosts, (post) =>
+      _.map(userPosts, (userPost) =>
+        post.space.category.includes(userPost) ? 1 : 0
+      )
+    );
+    const currentUserVector = _.map(userPosts, (userPost) =>
+      userPost === userId ? 1 : 0
+    );
+    const similarities = _.map(userVectors, (vector) =>
+      cosineSimilarity(vector, currentUserVector)
+    );
+
+    // Sort posts by similarity in descending order
+    const sortedPosts = _.orderBy(filteredPosts, similarities, "desc");
+
+    return sortedPosts;
+  } catch (error) {
+    console.error("Error in getPostRecommendations:", error);
+    throw error;
+  }
+}
+
+const getAllPostRecommendations = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const recommendations = await getPostRecommendations(userId);
+    res.json(recommendations);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Failed to retrieve post recommendations" });
+  }
+};
+
 module.exports = {
   createPost,
   getPosts,
@@ -211,4 +277,5 @@ module.exports = {
   getPostById,
   updatePost,
   deletePost,
+  getAllPostRecommendations
 };

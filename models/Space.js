@@ -32,10 +32,10 @@ const spaceSchema = new mongoose.Schema(
       enum: ['Gaming', 'Sports', 'Business', 'Technology', 'Art', 'Anime', 'Crypto', 'Fashion', 'Food and Drink'],
       required: true
     },
-    labels: {
-      type: Array,
-      default: [{}]
-    }
+    labels: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "label"
+    }]
   },
   { timestamps: true },
 );

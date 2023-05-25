@@ -17,8 +17,8 @@ const postSchema = new mongoose.Schema(
             required: true,
         },
         labels: [{
-            type: String,
-            ref: "space.labels",
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "label",
         }],
         space: {
             type: mongoose.Schema.Types.ObjectId,

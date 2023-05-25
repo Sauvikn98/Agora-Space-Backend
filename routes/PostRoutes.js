@@ -10,6 +10,7 @@ const {
   downvotePost,
   updatePost,
   deletePost,
+  getAllPostRecommendations
 } = require("../controller/PostController");
 
 // create new post
@@ -35,6 +36,8 @@ PostRouter.put("/posts/:postId", auth, updatePost);
 
 // delete a post
 PostRouter.delete("/posts/:postId", auth, deletePost);
+
+PostRouter.get("/posts/post-recommendations/:userId", getAllPostRecommendations);
 
 
 module.exports = { PostRoutes: PostRouter };
