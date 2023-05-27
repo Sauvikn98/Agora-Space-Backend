@@ -28,14 +28,9 @@ app.use(SpaceRoutes);
 app.use(CommentRoutes);
 app.use(NotificationRoutes);
 app.use(RefreshTokenRoutes);
-app.get('/', (req, res) => {
-  res.sendStatus(200)
-})
-
 
 const port = process.env.PORT || 5000;
 
-server.listen(port, '0.0.0.0', err => {
-  if (err) throw err;
+server.listen(port, () => {
   console.log(`Server started on port ${port}`);
 }); 
