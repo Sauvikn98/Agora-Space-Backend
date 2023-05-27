@@ -34,3 +34,14 @@ const port = process.env.PORT || 5000;
 server.listen(port, () => {
   console.log(`Server started on port ${port}`);
 }); 
+
+app.get('/', (req, res) => {
+  res.send('Hey this is my API running 🥳')
+})
+
+app.get('/about', (req, res) => {
+  res.send('This is my about route..... ')
+})
+
+// Export the Express API
+module.exports = app
