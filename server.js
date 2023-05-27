@@ -28,6 +28,9 @@ app.use(SpaceRoutes);
 app.use(CommentRoutes);
 app.use(NotificationRoutes);
 app.use(RefreshTokenRoutes);
+app.get('/', (req, res) => {
+  res.sendStatus(200)
+})
 
 
 const port = process.env.PORT || 5000;
