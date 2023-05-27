@@ -57,15 +57,15 @@ JWT_TOKEN="<your_jwt_token>"
 ```
 
 
-## Author
+##  Author
 
 - [Sauvik Nath](https://github.com/Sauvikn98)
 
-## Mentor
+##  Mentor
 
 - [Mintu Moni Kurmi](https://github.com/mintukurmiTV)
 
-## Supervisors
+##  Supervisors
 
 - [Nimish Bhardwaj]()
 - [Neelam Das]()
