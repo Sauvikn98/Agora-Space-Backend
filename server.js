@@ -4,13 +4,16 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 require("./db/mongoose");
-const {UserRoutes} = require("./routes/UserRoutes");
-const {PostRoutes} = require("./routes/PostRoutes");
-const {SpaceRoutes} = require("./routes/SpaceRoutes");
-const {CommentRoutes} = require("./routes/CommentRoutes");
-const {NotificationRoutes} = require("./routes/NotificationRoutes");
-
+const { UserRoutes } = require("./routes/UserRoutes");
+const { PostRoutes } = require("./routes/PostRoutes");
+const { SpaceRoutes } = require("./routes/SpaceRoutes");
+const { CommentRoutes } = require("./routes/CommentRoutes");
+const { NotificationRoutes } = require("./routes/NotificationRoutes");
+const {RefreshTokenRoutes} = require("./routes/RefreshTokenRoutes")
 const app = express();
+const server = require('http').createServer(app);
+const setupSocket = require("./socket")
+setupSocket(server);
 
 //body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -24,10 +27,11 @@ app.use(PostRoutes);
 app.use(SpaceRoutes);
 app.use(CommentRoutes);
 app.use(NotificationRoutes);
+app.use(RefreshTokenRoutes);
 
-// port
+
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server started on port ${port}`);
-});
+}); 

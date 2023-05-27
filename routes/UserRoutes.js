@@ -8,7 +8,9 @@ const {
   getUserById,
   updateUser,
   deleteUser,
-  } = require("../controller/UserController");
+  addBookmark,
+  getAllBookmarks
+} = require("../controller/UserController");
 
 // create a new user  
 UserRouter.post('/users/register', createUser);
@@ -23,10 +25,16 @@ UserRouter.get('/users/:userName', getUserByUserName);
 UserRouter.get('/users/:userId', getUserById);
 
 // update a user
-UserRouter.patch('/users/:userId', auth, updateUser);
+UserRouter.put('/user', auth, updateUser);
 
 // delete a user
-UserRouter.delete('/users/:userId', auth, deleteUser);
+UserRouter.post('/users/:userId', auth, deleteUser);
+
+// add a bookmark
+UserRouter.post('/users/bookmark/:postId', auth, addBookmark);
+
+// get all bookmark for a user
+UserRouter.post('/users/bookmarks', auth, getAllBookmarks);
 
 
-module.exports = {UserRoutes:UserRouter};
+module.exports = { UserRoutes: UserRouter };

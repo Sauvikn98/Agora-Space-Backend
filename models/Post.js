@@ -16,15 +16,19 @@ const postSchema = new mongoose.Schema(
             ref: "user",
             required: true,
         },
-        category: {
-            type: [String],
-            enum: ['Gaming', 'Sports', 'Business', 'Technology', 'Art', 'Anime', 'Crypto', 'Fashion', 'Food and Drink'],
-            required: true,
-        },
+        labels: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "label",
+        }],
         space: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "space",
-          },
+            required: true,
+        },
+        comments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "comment",
+        }],
         multimedia: {
             type: String
         },

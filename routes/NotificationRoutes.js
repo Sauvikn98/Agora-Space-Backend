@@ -9,7 +9,7 @@ const {
   } = require("../controller/NotificationController");
 
   // create new comment
-  NotificationRouter.post("/notifications/", createNotification);
+  NotificationRouter.post("/notifications", createNotification);
 
   // Get all notifications for a user
   NotificationRouter.get("/notifications/:userId", getNotificationsByUser);

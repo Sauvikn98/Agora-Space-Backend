@@ -1,14 +1,21 @@
-const {Comment} = require("../models");
+const { Comment } = require("../models");
+const { Post } = require("../models");
+
 
 // Function to create a new comment
 const createComment = async (req, res) => {
   try {
     const comment = new Comment({
-      post: req.body.postId,
+      post: req.body.post,
       author: req.body.author,
-      parentComment: req.body.parentCommentId || null,
+      parentComment: req.body.parentComment || null,
       content: req.body.content,
     });
+    await Post.findByIdAndUpdate(
+      comment.post,
+      { $push: { comments: comment._id } },
+      { new: true }
+    );
     await comment.save();
     res.status(201).json(comment);
   } catch (error) {
@@ -17,10 +24,12 @@ const createComment = async (req, res) => {
   }
 };
 
-// Function to get all comments for a post
+
 const getCommentsByPost = async (req, res) => {
   try {
-    const comments = await Comment.find({ post: req.params.postId }).populate("author", "userName");
+    const comments = await Comment.find({ post: req.params.postId })
+      .populate("author")
+      .populate({ path: "children", populate: { path: "author" } });
     const nestedComments = arrangeComments(comments);
     res.status(200).json(nestedComments);
   } catch (error) {
@@ -29,27 +38,43 @@ const getCommentsByPost = async (req, res) => {
   }
 };
 
-// Helper function to arrange comments in a nested structure
 const arrangeComments = (comments) => {
-    const commentMap = {};
-    const nestedComments = [];
-  
-    comments.forEach((comment) => {
-      commentMap[comment._id] = comment;
-      commentMap[comment._id].children = [];
-    });
-  
-    for (const id in commentMap) {
-      const comment = commentMap[id];
-      if (comment.parentComment !== null) {
-        commentMap[comment.parentComment].children.push(comment);
-      } else {
-        nestedComments.push(comment);
-      }
+  const commentMap = {};
+
+  // create a map of comments by id
+  comments.forEach((comment) => {
+    commentMap[comment._id] = comment;
+    comment.children = [];
+  });
+
+  // assign child comments to their parent comments recursively
+  for (const id in commentMap) {
+    const comment = commentMap[id];
+    if (comment.parentComment !== null) {
+      commentMap[comment.parentComment].children.push(comment);
     }
-  
-    return nestedComments;
+  }
+
+  // recursively append child comments to their parent comments
+  const appendChildren = (comment) => {
+    if (comment.children) {
+      comment.children.forEach((child) => {
+        child.children = commentMap[child._id].children;
+        appendChildren(child);
+      });
+    }
   };
+
+  // iterate over top-level comments and add their children recursively
+  comments.forEach((comment) => {
+    if (comment.parentComment === null) {
+      appendChildren(comment);
+    }
+  });
+
+  return comments.filter((comment) => comment.parentComment === null);
+};
+
 
 // Function to update a comment by ID
 const updateComment = async (req, res) => {
@@ -82,17 +107,18 @@ const deleteComment = async (req, res) => {
     }
     await comment.remove();
     res.status(200).json({ message: "Comment deleted" });
-  } catch (error) {
-    console.error(error);
+  }  catch (error) {
+    console.error(error.message);
+    console.error(error.stack);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
 
 
 
-module.exports = { 
-    createComment,
-    getCommentsByPost,
-    updateComment,
-    deleteComment
+module.exports = {
+  createComment,
+  getCommentsByPost,
+  updateComment,
+  deleteComment
 };
