@@ -33,72 +33,57 @@ function setupSocket(server) {
           if (isMember) {
             socket.join(_id); // Join the space channel
             console.log(`Socket ${socket.id} joined space ${_id}`);
+            socket.to(_id).emit('joinedSpace', {
+              message: 'A user has joined the space channel.',
+              user: socket.id, // Replace with the appropriate user information
+              spaceId: _id
+            });
+
+            // Emit 'postComment' event to the joined space channel
+            socket.on('postComment', (comment) => {
+              socket.to(_id).emit('newCommentNotification', {
+                comment: comment,
+                user: socket.id // Replace with the appropriate user information
+              });
+            });
+
+            // Emit 'commentReply' event to the joined space channel
+            socket.on('commentReply', (reply) => {
+              socket.to(_id).emit('commentReply', {
+                reply: reply,
+                user: socket.id // Replace with the appropriate user information
+              });
+            });
+
+            // Emit 'newPost' event to the joined space channel
+            socket.on('newPost', (post) => {
+              io.to(post.space).emit('newPostNotification', {
+                post: post,
+                user: socket.id // Replace with the appropriate user information
+              });
+              console.log(post)
+            });
+
+            // Emit 'leftSpace' event to the joined space channel
+            socket.on('disconnect', () => {
+              socket.to(_id).emit('leftSpace', {
+                message: 'A user has left the space channel.',
+                user: socket.id, // Replace with the appropriate user information
+                spaceId: _id
+              });
+            });
+
+            socket.on('leaveSpaceChannel', (spaceId) => {
+              socket.leave(spaceId)
+              console.log(`User left ${spaceId} space channel`)
+            })
+
           } else {
             console.log(`Socket ${socket.id} is not a member of space ${_id}`);
           }
         });
       });
     });
-
-    socket.on('joinSpaceChannel', (spaceId) => {
-      socket.join(spaceId)
-      console.log(`User joined ${spaceId} space channel`);
-
-
-      // Emit 'joinedSpace' event to the joined space channel
-      socket.to(spaceId).emit('joinedSpace', {
-        message: 'A user has joined the space channel.',
-        user: socket.id, // Replace with the appropriate user information
-        spaceId: spaceId
-      });
-
-      // Emit 'leftSpace' event to the joined space channel
-      socket.on('disconnect', () => {
-        socket.to(spaceId).emit('leftSpace', {
-          message: 'A user has left the space channel.',
-          user: socket.id, // Replace with the appropriate user information
-          spaceId: spaceId
-        });
-      });
-
-      // Emit 'postComment' event to the joined space channel
-      socket.on('postComment', (comment) => {
-        socket.to(spaceId).emit('postComment', {
-          comment: comment,
-          user: socket.id // Replace with the appropriate user information
-        });
-      });
-
-      // Emit 'commentReply' event to the joined space channel
-      socket.on('commentReply', (reply) => {
-        socket.to(spaceId).emit('commentReply', {
-          reply: reply,
-          user: socket.id // Replace with the appropriate user information
-        });
-      });
-
-      // Emit 'commentMention' event to the joined space channel
-      socket.on('commentMention', (mention) => {
-        socket.to(spaceId).emit('commentMention', {
-          mention: mention,
-          user: socket.id // Replace with the appropriate user information
-        });
-      });
-
-      // Emit 'newPost' event to the joined space channel
-      socket.on('newPost', (post) => {
-        io.to(spaceId).emit('newPostNotification', {
-          post: post,
-          user: socket.id // Replace with the appropriate user information
-        });
-        console.log(post)
-      });
-    })
-
-    socket.on('leaveSpaceChannel', (spaceId) => {
-      socket.leave(spaceId)
-      console.log(`User left ${spaceId} space channel`)
-    })
 
     socket.on('joinUserChannel', (userId) => {
       socket.join(userId)

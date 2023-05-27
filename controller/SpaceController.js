@@ -75,10 +75,15 @@ const uploadCoverPhoto = async (req, res) => {
   }
 };
 
-// Function to get all spaces/groups
 const getSpaces = async (req, res) => {
+  const limit = 10;
+
   try {
-    const spaces = await Space.find().populate("posts").populate("labels");
+    const spaces = await Space.find()
+      .limit(parseInt(limit))
+      .populate("posts")
+      .populate("labels");
+      
     res.status(200).json(spaces);
   } catch (error) {
     console.error(error);

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const { upload } = require('../cloudinary/cloudinary');
 
+
 const createUser = async (req, res) => {
   const { email, password, userName, avatar} = req.body;
 
@@ -35,7 +36,7 @@ const createUser = async (req, res) => {
     const accessToken = jwt.sign(
       accessTokenPayload,
       process.env.JWT_TOKEN,
-      { expiresIn: "15 minutes" }
+      { expiresIn: "60 minutes" }
     );
 
     // Generate refresh token

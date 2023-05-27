@@ -14,6 +14,19 @@ const logoutAllSessions = async (req, res) => {
     }
 };
 
+const generateAccessToken = (user) => {
+    const accessToken = jwt.sign(
+        {
+            id: user._id,
+            userName: user.userName
+        },
+        process.env.JWT_TOKEN,
+        { expiresIn: "60 minutes" }
+    );
+    return accessToken;
+};
+
+
 
 const refreshAccessToken = async (req, res) => {
     const { refreshToken } = req.body;
