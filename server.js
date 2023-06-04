@@ -29,9 +29,11 @@ app.use(CommentRoutes);
 app.use(NotificationRoutes);
 app.use(RefreshTokenRoutes);
 
-const port = process.env.PORT || 5000;
 
-server.listen(port, () => {
+const host = '0.0.0.0'
+const port = process.env.PORT || 3000;
+
+server.listen(port, host, () => {
   console.log(`Server started on port ${port}`);
 }); 
 
