@@ -36,3 +36,6 @@ const port = process.env.PORT || 3000;
 server.listen(port, host, () => {
   console.log(`Server started on port ${port}`);
 }); 
+
+// Export the Express API
+module.exports = app
