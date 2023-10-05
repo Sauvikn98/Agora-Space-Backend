@@ -1,8 +1,9 @@
 const { Notification } = require('../models');
 
 // Create a new notification
-const createNotification = async (notification) => {
+const createNotification = async (req, res) => {
   try {
+    const notification = req.body.notification;
     const newNotification = new Notification({
       sender: notification.sender,
       receiver: notification.receiver,
@@ -11,11 +12,13 @@ const createNotification = async (notification) => {
       intent: notification.intent
     });
     await newNotification.save();
-    return newNotification;
+    return res.status(201).json(newNotification);
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ message: 'Error creating notification' });
   }
 };
+
 // Get all notifications for a user
 const getNotificationsByUser = async (req, res) => {
   try {

@@ -11,14 +11,21 @@ const { CommentRoutes } = require("./routes/CommentRoutes");
 const { NotificationRoutes } = require("./routes/NotificationRoutes");
 const app = express();
 const server = require('http').createServer(app);
-const setupSocket = require("./socket")
-const io = setupSocket(server);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "*"
+  }
+});
 
-//body parser middleware
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-// setting up cors, headers
 app.use(cors());
 app.use(compression());
 app.use(UserRoutes);
@@ -26,8 +33,6 @@ app.use(PostRoutes);
 app.use(SpaceRoutes);
 app.use(CommentRoutes);
 app.use(NotificationRoutes);
-app.set('io', io)
-
 
 const port = process.env.PORT || 5000;
 
