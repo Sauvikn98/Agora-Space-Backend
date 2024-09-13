@@ -6,7 +6,7 @@ const {
   refreshAccessToken
 } = require("../controller/RefreshTokenController");
 
-RefreshTokenRouter.post("/logout-all-sessions", auth, logoutAllSessions);
-RefreshTokenRouter.post("/refresh-access-token", refreshAccessToken);
+RefreshTokenRouter.post("/api/logout-all-sessions", auth, logoutAllSessions);
+RefreshTokenRouter.post("/api/refresh-access-token", refreshAccessToken);
 
 module.exports = { RefreshTokenRoutes: RefreshTokenRouter };

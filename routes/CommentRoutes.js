@@ -9,16 +9,16 @@ const {
   } = require("../controller/CommentController");
 
   // create new comment
-  CommentRouter.post("/comments", createComment);
+  CommentRouter.post("/api/comments", createComment);
 
   // get all comments for a Post
-  CommentRouter.get("/comments/:postId", getCommentsByPost);
+  CommentRouter.get("/api/comments/:postId", getCommentsByPost);
 
   // update a comment by ID
-  CommentRouter.patch("/comments/:commentId", auth, updateComment);
+  CommentRouter.patch("/api/comments/:commentId", auth, updateComment);
 
   // delete a comment by ID
-  CommentRouter.delete("/comments/:commentId", auth, deleteComment);
+  CommentRouter.delete("/api/comments/:commentId", auth, deleteComment);
   
 
   module.exports = {CommentRoutes:CommentRouter};

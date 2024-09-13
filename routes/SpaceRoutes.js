@@ -20,49 +20,49 @@ const {
 } = require("../controller/SpaceController");
 
 // create new space
-SpaceRouter.post("/spaces", createSpace);
+SpaceRouter.post("/api/spaces", createSpace);
 
 // get all spaces
-SpaceRouter.get("/spaces", getSpaces);
+SpaceRouter.get("/api/spaces", getSpaces);
 
 // get space with a spaceId
-SpaceRouter.get("/spaces/:spaceId", getSpaceById);
+SpaceRouter.get("/api/spaces/:spaceId", getSpaceById);
 
 // get all Posts of a particular space
-SpaceRouter.get("/spaces/:spaceId/posts", getSpacePosts);
+SpaceRouter.get("/api/spaces/:spaceId/posts", getSpacePosts);
 
 // join a space
-SpaceRouter.put("/spaces/:spaceId/join", auth, joinSpace);
+SpaceRouter.put("/api/spaces/:spaceId/join", auth, joinSpace);
 
 // leave a space
-SpaceRouter.delete("/spaces/:spaceId/leave", auth, leaveSpace);
+SpaceRouter.delete("/api/spaces/:spaceId/leave", auth, leaveSpace);
 
 // get all members of a particular space
-SpaceRouter.get("/spaces/:spaceId/members", getSpaceMembers);
+SpaceRouter.get("/api/spaces/:spaceId/members", getSpaceMembers);
 
 // create space labels
-SpaceRouter.post("/spaces/:spaceId/labels", createLabel);
+SpaceRouter.post("/api/spaces/:spaceId/labels", createLabel);
 
 // upload cover photo
-SpaceRouter.post("/spaces/:spaceId/cover-photo", auth, uploadCoverPhoto);
+SpaceRouter.post("/api/spaces/:spaceId/cover-photo", auth, uploadCoverPhoto);
 
 // get all space labels
-SpaceRouter.get("/spaces/:spaceId/labels", getAllLabels);
+SpaceRouter.get("/api/spaces/:spaceId/labels", getAllLabels);
 
 // update a space label
-SpaceRouter.put("/spaces/:spaceId/labels/:labelId", updateLabel);
+SpaceRouter.put("/api/spaces/:spaceId/labels/:labelId", updateLabel);
 
 // delete a space label
-SpaceRouter.delete("/spaces/:spaceId/labels/:labelId", deleteLabel);
+SpaceRouter.delete("/api/spaces/:spaceId/labels/:labelId", deleteLabel);
 
 // update a space
-SpaceRouter.put("/spaces/:spaceId", updateSpace);
+SpaceRouter.put("/api/spaces/:spaceId", updateSpace);
 
 // delete a space
-SpaceRouter.delete("/spaces/:spaceId", auth, deleteSpace);
+SpaceRouter.delete("/api/spaces/:spaceId", auth, deleteSpace);
 
 
-SpaceRouter.get("/spaces/space-recommendations/:userId", getAllSpaceRecommendations);
+SpaceRouter.get("/api/spaces/space-recommendations/:userId", getAllSpaceRecommendations);
 
 
 module.exports = { SpaceRoutes: SpaceRouter };

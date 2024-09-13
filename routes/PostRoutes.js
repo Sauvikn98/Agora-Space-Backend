@@ -14,30 +14,30 @@ const {
 } = require("../controller/PostController");
 
 // create new post
-PostRouter.post("/posts", createPost);
+PostRouter.post("/api/posts", createPost);
 
 // get all posts
-PostRouter.get("/posts", getPosts);
+PostRouter.get("/api/posts", getPosts);
 
 // search posts by keyword /posts/search?text=asdsd
-PostRouter.get('/posts/search', getPostsByKeyword);
+PostRouter.get('/api/posts/search', getPostsByKeyword);
 
 // get post with a postId
-PostRouter.get("/posts/:postId", getPostById);
+PostRouter.get("/api/posts/:postId", getPostById);
 
 // upvote a post
-PostRouter.patch("/posts/:postId/upvote", auth, upvotePost);
+PostRouter.patch("/api/posts/:postId/upvote", auth, upvotePost);
 
 // downvote a post
-PostRouter.patch("/posts/:postId/downvote", auth, downvotePost);
+PostRouter.patch("/api/posts/:postId/downvote", auth, downvotePost);
 
 // update a post
-PostRouter.put("/posts/:postId", auth, updatePost);
+PostRouter.put("/api/posts/:postId", auth, updatePost);
 
 // delete a post
-PostRouter.delete("/posts/:postId", auth, deletePost);
+PostRouter.delete("/api/posts/:postId", auth, deletePost);
 
-PostRouter.get("/posts/post-recommendations/:userId", getAllPostRecommendations);
+PostRouter.get("/api/posts/post-recommendations/:userId", getAllPostRecommendations);
 
 
 module.exports = { PostRoutes: PostRouter };

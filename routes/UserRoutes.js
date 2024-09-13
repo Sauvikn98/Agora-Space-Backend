@@ -13,28 +13,28 @@ const {
 } = require("../controller/UserController");
 
 // create a new user  
-UserRouter.post('/users/register', createUser);
+UserRouter.post('/api/users/register', createUser);
 
 // login a user
-UserRouter.post('/users/login', loginUser);
+UserRouter.post('/api/users/login', loginUser);
 
 // get a user by userName
-UserRouter.get('/users/:userName', getUserByUserName);
+UserRouter.get('/api/users/:userName', getUserByUserName);
 
 // get a user by userId
-UserRouter.get('/users/:userId', getUserById);
+UserRouter.get('/api/users/:userId', getUserById);
 
 // update a user
-UserRouter.put('/user', auth, updateUser);
+UserRouter.put('/api/user', auth, updateUser);
 
 // delete a user
-UserRouter.post('/users/:userId', auth, deleteUser);
+UserRouter.post('/api/users/:userId', auth, deleteUser);
 
 // add a bookmark
-UserRouter.post('/users/bookmark/:postId', auth, addBookmark);
+UserRouter.post('/api/users/bookmark/:postId', auth, addBookmark);
 
 // get all bookmark for a user
-UserRouter.post('/users/bookmarks', auth, getAllBookmarks);
+UserRouter.post('/api/users/bookmarks', auth, getAllBookmarks);
 
 
 module.exports = { UserRoutes: UserRouter };

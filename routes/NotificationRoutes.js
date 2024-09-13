@@ -9,16 +9,16 @@ const {
   } = require("../controller/NotificationController");
 
   // create new comment
-  NotificationRouter.post("/notifications", createNotification);
+  NotificationRouter.post("/api/notifications", createNotification);
 
   // Get all notifications for a user
-  NotificationRouter.get("/notifications/:userId", getNotificationsByUser);
+  NotificationRouter.get("/api/notifications/:userId", getNotificationsByUser);
 
   // Mark a notification as seen
-  NotificationRouter.patch("/notifications/seen", auth, markNotificationAsSeen);
+  NotificationRouter.patch("/api/notifications/seen", auth, markNotificationAsSeen);
 
   // delete a comment
-  NotificationRouter.delete("/notifications/:commentId", auth, deleteNotification);
+  NotificationRouter.delete("/api/notifications/:commentId", auth, deleteNotification);
   
 
   module.exports = {NotificationRoutes:NotificationRouter};
